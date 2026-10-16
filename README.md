@@ -1,12 +1,12 @@
-# Sistema de pedidos de comida local
+# EcoRuta Cusco: Sistema de gestión de residuos
 
 ## Descripción
 
-Proyecto inicial para desarrollar un sistema web de gestión de pedidos de comida local para una startup de Cusco.
+Sistema web y móvil para gestionar la recolección de residuos sólidos de la Municipalidad de Cusco. Permite planificar y monitorear las rutas de los camiones recolectores, informar a los ciudadanos los horarios de recojo y recibir reportes de acumulación de basura.
 
 ## Objetivo
 
-Organizar el código fuente utilizando Git y GitHub, manteniendo un historial de cambios y facilitando el trabajo colaborativo.
+Organizar el código fuente y la documentación del proyecto utilizando Git y GitHub, manteniendo un historial de cambios y facilitando el trabajo colaborativo.
 
 ## Tecnologías
 
@@ -14,10 +14,10 @@ Organizar el código fuente utilizando Git y GitHub, manteniendo un historial de
 - GitHub
 - Visual Studio Code
 
+## Documentación
+
+- [Laboratorio 2: Agile Inception](docs/latex/lab2-agile-inception.pdf): visión, stakeholders, Lean Canvas y riesgos iniciales
+
 ## Estado del proyecto
 
-Proyecto inicial del Laboratorio 1 de Ingeniería de Software I.
-
-## Autora
-
-Gisel Dayana Farfan Gomez
+Fase de Agile Inception (Laboratorio 2 de Ingeniería de Software I).
