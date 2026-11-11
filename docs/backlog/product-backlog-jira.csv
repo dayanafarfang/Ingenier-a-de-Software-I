@@ -1,0 +1,114 @@
+Summary,Issue Type,Description,Priority,Story Points,Labels,Labels
+HU-01 Registro de ciudadanos,Story,"Como ciudadano quiero registrarme con mi correo o celular y mi dirección para recibir la información de recojo de mi zona.
+
+Criterios de aceptación:
+- Dado que ingreso nombre, correo o celular, contraseña y dirección válidos, cuando confirmo el registro, entonces se crea mi cuenta y el sistema me asigna la zona de mi dirección.
+- Dado que el correo o celular ya está registrado, cuando intento registrarme, entonces el sistema me lo indica y me ofrece iniciar sesión.
+- Dado que mi dirección no tiene numeración, cuando la registro, entonces puedo marcar mi vivienda directamente en el mapa.
+- Dado que no acepto la política de privacidad, cuando intento registrarme, entonces no se crea la cuenta. Solo se piden los datos mínimos (Ley 29733, riesgo R8).",Highest,3,E1-Usuarios,Must
+HU-02 Cuentas y roles del personal,Story,"Como administrador municipal quiero crear cuentas para operadores y supervisores y asignarles un rol para que cada uno acceda solo a las funciones que le corresponden.
+
+Criterios de aceptación:
+- Dado que creo una cuenta con rol ""operador"", cuando esa persona inicia sesión, entonces solo ve la app de ruta, no el panel municipal.
+- Dado que desactivo una cuenta, cuando el usuario intenta iniciar sesión, entonces el acceso es denegado.
+- Dado que soy ciudadano, cuando intento entrar al panel municipal, entonces el sistema me lo impide.",Highest,3,E1-Usuarios,Must
+HU-03 Zonas y rutas en mapa,Story,"Como administrador municipal quiero registrar zonas y rutas de recolección sobre un mapa para planificar el recorrido de los camiones.
+
+Criterios de aceptación:
+- Dado que dibujo el área de una zona en el mapa, cuando la guardo con un nombre, entonces queda disponible para asignarle horarios y rutas.
+- Dado que creo una ruta, cuando agrego sus paradas en orden, entonces el mapa muestra el recorrido y su distancia aproximada.
+- Dado que una nueva zona se superpone con otra existente, cuando intento guardarla, entonces el sistema me advierte (riesgo R6).",Highest,8,E2-Planificacion,Must
+HU-04 Horarios de recojo por zona,Story,"Como administrador municipal quiero definir los días y horarios de recojo de cada zona por tipo de residuo para que el servicio sea predecible.
+
+Criterios de aceptación:
+- Dado que selecciono una zona, cuando registro días, rango horario y tipo de residuo (general o reciclable), entonces el horario queda visible para los ciudadanos de esa zona.
+- Dado que la hora de fin es anterior a la de inicio, cuando intento guardar, entonces el sistema no lo permite.
+- Dado que modifico un horario, cuando guardo el cambio, entonces la consulta de horarios muestra el nuevo valor de inmediato.",Highest,5,E2-Planificacion,Must
+HU-05 Consulta de horario por dirección,Story,"Como ciudadano quiero consultar el horario de recojo escribiendo mi dirección para sacar mi basura a tiempo.
+
+Criterios de aceptación:
+- Dado que mi dirección está dentro de una zona registrada, cuando la busco, entonces veo los días, el rango horario y el tipo de residuo.
+- Dado que mi dirección está fuera de las zonas registradas, cuando la busco, entonces el sistema muestra ""zona sin horario registrado"".
+- Dado que no tengo cuenta, cuando entro a la web, entonces igual puedo consultar el horario (sin iniciar sesión).",Highest,3,E4-Ciudadano,Must
+HU-06 Asignación de rutas a camión y operador,Story,"Como supervisor quiero asignar cada ruta a un camión y a un operador por día para organizar el servicio.
+
+Criterios de aceptación:
+- Dado que la ruta, el camión y el operador están disponibles, cuando hago la asignación para una fecha, entonces la ruta aparece en la app del operador ese día.
+- Dado que el camión ya tiene otra ruta en el mismo horario, cuando intento asignarlo, entonces el sistema impide la asignación.
+- Dado que reasigno una ruta a otro operador, cuando guardo el cambio, entonces el operador anterior deja de verla y el nuevo la recibe.",Highest,3,E2-Planificacion,Must
+HU-07 Ruta del día en la app del operador,Story,"Como operador de camión quiero ver en mi celular la ruta del día con las paradas en orden para seguir el recorrido sin perderme.
+
+Criterios de aceptación:
+- Dado que tengo una ruta asignada, cuando abro la app, entonces veo el mapa del recorrido y la lista de paradas en orden, en no más de dos toques (riesgo R3).
+- Dado que no tengo conexión, cuando abro la app, entonces veo la ruta que se descargó previamente (riesgo R4).
+- Dado que no tengo ruta asignada, cuando abro la app, entonces veo el mensaje ""No tienes rutas asignadas para hoy"".",Highest,5,E3-Operacion,Must
+HU-08 Envío automático de ubicación GPS,Story,"Como operador de camión quiero que la app envíe mi ubicación automáticamente mientras hago la ruta para que la municipalidad y los vecinos sepan dónde está el camión.
+
+Criterios de aceptación:
+- Dado que inicié la ruta, cuando el camión está en movimiento, entonces la app envía la ubicación cada 30 segundos sin que yo haga nada.
+- Dado que pierdo la señal, cuando recupero la conexión, entonces las ubicaciones guardadas se sincronizan en orden (riesgos R2 y R4).
+- Dado que finalizo la ruta, cuando confirmo el fin, entonces la app deja de enviar la ubicación.",Highest,8,E3-Operacion,Must
+HU-09 Monitoreo de la flota en tiempo real,Story,"Como supervisor quiero ver en un mapa la ubicación en tiempo real de todos los camiones para saber si están cumpliendo sus rutas.
+
+Criterios de aceptación:
+- Dado que hay camiones en ruta, cuando abro el panel, entonces veo cada camión en el mapa con su ruta, su operador y su porcentaje de avance.
+- Dado que un camión no envía ubicación por más de 5 minutos, cuando reviso el panel, entonces aparece como ""sin señal"" con su última ubicación conocida y la hora (riesgo R2).
+- Dado que el panel está abierto, cuando llegan nuevas ubicaciones, entonces el mapa se actualiza al menos una vez por minuto sin recargar la página.",Highest,8,E6-Monitoreo,Must
+HU-10 Alerta de camión cercano,Story,"Como ciudadano quiero recibir una alerta cuando el camión esté cerca de mi casa para sacar mi basura a tiempo.
+
+Criterios de aceptación:
+- Dado que tengo las alertas activadas, cuando el camión de mi zona está a 10 minutos de mi dirección, entonces recibo una notificación en el celular.
+- Dado que quiero más o menos anticipación, cuando entro a configuración, entonces puedo elegir 5, 10 o 15 minutos, o desactivar las alertas.
+- Dado que el camión pasa varias veces cerca de mi casa en el mismo recorrido, cuando se generan las alertas, entonces recibo una sola notificación.",Highest,8,E4-Ciudadano,Must
+HU-11 Reporte de basura acumulada,Story,"Como ciudadano quiero reportar un punto de basura acumulada con una foto y su ubicación para que la municipalidad lo atienda.
+
+Criterios de aceptación:
+- Dado que adjunto una foto y la ubicación (GPS o marcada en el mapa), cuando envío el reporte, entonces queda registrado como ""Pendiente"" y recibo un número de seguimiento.
+- Dado que no adjunto foto o ubicación, cuando intento enviar, entonces el sistema no lo permite (riesgo R7).
+- Dado que ya envié 5 reportes en el día, cuando intento enviar otro, entonces el sistema me indica que alcancé el límite diario (riesgo R7).",Highest,5,E5-Incidencias,Must
+HU-12 Gestión de reportes ciudadanos,Story,"Como supervisor quiero ver los reportes ciudadanos en una lista y en un mapa y cambiar su estado para organizar su atención.
+
+Criterios de aceptación:
+- Dado que hay reportes nuevos, cuando abro la bandeja, entonces veo la foto, la ubicación, la fecha y el estado de cada uno, ordenados del más antiguo al más reciente.
+- Dado que cambio el estado de un reporte (Pendiente → En atención → Atendido), cuando guardo, entonces quedan registrados la fecha y el responsable del cambio.
+- Dado que rechazo un reporte, cuando guardo, entonces el sistema me obliga a indicar el motivo.",Highest,5,E5-Incidencias,Must
+HU-13 Registro de paradas atendidas,Story,"Como operador de camión quiero marcar cada parada como atendida o no atendida para dejar registro del servicio realizado.
+
+Criterios de aceptación:
+- Dado que llego a una parada, cuando la marco como atendida, entonces se registran la hora y la ubicación.
+- Dado que no pude atender una parada, cuando la marco como no atendida, entonces debo elegir un motivo (calle bloqueada, camión lleno u otro) y el supervisor lo ve en el panel.
+- Dado que no tengo conexión, cuando marco una parada, entonces el registro se guarda y se envía al recuperar la señal.",High,3,E3-Operacion,Should
+HU-14 Camión en el mapa para el ciudadano,Story,"Como ciudadano quiero ver en el mapa dónde está el camión de mi zona para saber cuánto falta para que pase.
+
+Criterios de aceptación:
+- Dado que el camión de mi zona está en ruta, cuando abro el mapa, entonces veo su posición y el tiempo estimado de llegada a mi dirección.
+- Dado que no hay un camión en ruta en mi zona, cuando abro el mapa, entonces veo la fecha y hora del próximo recojo.
+- Dado que el camión perdió la señal, cuando abro el mapa, entonces veo su ""última ubicación conocida"" con la hora.",High,5,E4-Ciudadano,Should
+HU-15 Seguimiento del reporte,Story,"Como ciudadano quiero ver el estado de mis reportes para saber si fueron atendidos.
+
+Criterios de aceptación:
+- Dado que envié reportes, cuando abro ""Mis reportes"", entonces veo cada uno con su estado y la fecha del último cambio.
+- Dado que mi reporte pasa a ""Atendido"", cuando el supervisor guarda el cambio, entonces recibo una notificación.
+- Dado que mi reporte es rechazado, cuando recibo la notificación, entonces veo el motivo del rechazo.",High,3,E5-Incidencias,Should
+HU-16 Indicadores del servicio,Story,"Como gerente de limpieza pública quiero ver indicadores del servicio por zona y por fecha para tomar decisiones sobre rutas y recursos.
+
+Criterios de aceptación:
+- Dado que elijo un rango de fechas, cuando abro los indicadores, entonces veo el porcentaje de rutas completadas a tiempo, los reportes recibidos vs. atendidos y el tiempo promedio de atención.
+- Dado que selecciono una zona, cuando aplico el filtro, entonces los indicadores se recalculan solo para esa zona.
+- Dado que necesito presentar los resultados, cuando pulso ""Exportar"", entonces descargo los indicadores en Excel o PDF.",High,5,E6-Monitoreo,Should
+HU-17 Avisos de cambios de horario,Story,"Como administrador municipal quiero publicar avisos de cambios temporales de horario para que los vecinos se enteren a tiempo.
+
+Criterios de aceptación:
+- Dado que creo un aviso para ciertas zonas y fechas, cuando lo publico, entonces los ciudadanos de esas zonas reciben una notificación.
+- Dado que hay un aviso vigente, cuando un ciudadano consulta su horario, entonces ve el aviso junto al horario.
+- Dado que pasó la fecha final del aviso, cuando se consulta el horario, entonces el aviso ya no se muestra.",Medium,3,E4-Ciudadano,Could
+HU-18 Puntos de reciclaje,Story,"Como reciclador formalizado quiero consultar los puntos y horarios de recojo de residuos reciclables para organizar mi recorrido.
+
+Criterios de aceptación:
+- Dado que entro a la sección de reciclaje, cuando se carga el mapa, entonces veo los puntos de acopio con sus días y horarios.
+- Dado que selecciono una zona, cuando aplico el filtro, entonces solo veo los puntos de esa zona.",Medium,2,E4-Ciudadano,Could
+HU-19 Alertas por SMS o WhatsApp,Story,"Como ciudadano sin smartphone quiero recibir las alertas por SMS o WhatsApp para no quedar fuera del servicio.
+
+Criterios de aceptación:
+- Dado que registré mi celular y elegí SMS como canal, cuando el camión se acerca, entonces recibo la alerta por SMS.
+- Dado que no tengo la app instalada, cuando me registro por la web, entonces puedo elegir SMS o WhatsApp como canal de alertas.",Lowest,5,E4-Ciudadano,Wont
