@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo EcoRuta Cusco</title>
+<style>
+  :root {
+    --verde: #1D5C3A;
+    --verde-2: #2E7D52;
+    --verde-claro: #E8F4EC;
+    --ambar: #B26B00;
+    --ambar-claro: #FFF4E0;
+    --rojo: #B3261E;
+    --rojo-claro: #FDECEA;
+    --azul: #1F5FA8;
+    --azul-claro: #E7F0FA;
+    --texto: #1B1F1D;
+    --texto-2: #55605A;
+    --borde: #D5DDD8;
+    --fondo: #F4F6F5;
+    --blanco: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--fondo); color: var(--texto);
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.4;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  /* ---------- Storyboard ---------- */
+  .board { padding: 24px 16px 48px; max-width: 1400px; margin: 0 auto; }
+  .board > header h1 { margin: 0 0 4px; color: var(--verde); font-size: 26px; }
+  .board > header p { margin: 0 0 20px; color: var(--texto-2); }
+  .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .nav a {
+    text-decoration: none; color: var(--verde); background: var(--blanco); border: 1px solid var(--borde);
+    padding: 8px 14px; border-radius: 999px; font-size: 14px;
+  }
+  .nav a.activo { background: var(--verde); color: var(--blanco); border-color: var(--verde); }
+  .grupo { margin-bottom: 40px; }
+  .grupo > h2 { font-size: 18px; margin: 0 0 14px; }
+  .fila { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .pantalla > .titulo { font-size: 14px; font-weight: 600; color: var(--texto-2); margin: 0 0 8px; }
+  .pantalla { max-width: 100%; }
+
+  /* Vista de una sola pantalla (#id) */
+  body.solo .board > header, body.solo .grupo > h2 { display: none; }
+  body.solo .pantalla { display: none; }
+  body.solo .pantalla.visible { display: block; }
+  body.solo .grupo:not(:has(.visible)) { display: none; }
+  body.solo .fila { justify-content: center; }
+  body.captura .nav, body.captura .pantalla > .titulo { display: none; }
+  body.captura .board { padding: 0; }
+  /* En la captura para el informe el teléfono crece para mostrar todo el contenido */
+  body.captura .phone { height: auto; }
+  body.captura .contenido { overflow: visible; }
+
+  /* ---------- Teléfono ---------- */
+  .phone {
+    width: 360px; height: 740px; background: var(--blanco); border: 10px solid #1E2421; border-radius: 34px;
+    overflow: hidden; display: flex; flex-direction: column; position: relative;
+  }
+  .status { height: 26px; padding: 0 18px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; }
+  .appbar {
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--verde); color: var(--blanco);
+  }
+  .appbar h3 { margin: 0; font-size: 18px; flex: 1; }
+  .appbar .ico { width: 24px; height: 24px; }
+  .contenido { flex: 1; overflow-y: auto; padding: 16px; }
+  .tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--borde); background: var(--blanco);
+  }
+  .tabs a {
+    min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    text-decoration: none; color: var(--texto-2); font-size: 12px;
+  }
+  .tabs a.activo { color: var(--verde); font-weight: 700; }
+  .tabs svg { width: 24px; height: 24px; }
+
+  /* ---------- Componentes ---------- */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px;
+    border-radius: 12px; border: 0; background: var(--verde); color: var(--blanco); font-weight: 600; cursor: pointer;
+    text-decoration: none; font-size: 16px;
+  }
+  .btn.sec { background: var(--blanco); color: var(--verde); border: 1.5px solid var(--verde); }
+  .btn.peq { width: auto; min-height: 40px; padding: 0 14px; font-size: 14px; }
+  .campo { margin-bottom: 14px; }
+  .campo label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .campo input, .campo select, .campo textarea {
+    width: 100%; min-height: 48px; padding: 10px 12px; border: 1.5px solid var(--borde); border-radius: 10px; background: var(--blanco);
+  }
+  .campo textarea { min-height: 76px; resize: none; }
+  .campo .ayuda { font-size: 13px; color: var(--texto-2); margin-top: 4px; }
+  .campo.error input { border-color: var(--rojo); }
+  .campo.error .ayuda { color: var(--rojo); }
+  .card { border: 1px solid var(--borde); border-radius: 14px; padding: 14px; background: var(--blanco); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .chip.pend { background: var(--ambar-claro); color: var(--ambar); }
+  .chip.aten { background: var(--azul-claro); color: var(--azul); }
+  .chip.ok { background: var(--verde-claro); color: var(--verde); }
+  .chip.rech { background: var(--rojo-claro); color: var(--rojo); }
+  .muted { color: var(--texto-2); }
+  .peq { font-size: 13px; }
+  .enlace { color: var(--verde); font-weight: 600; text-decoration: none; }
+  .sep { height: 1px; background: var(--borde); margin: 16px 0; }
+  .aviso {
+    display: flex; gap: 10px; padding: 12px; border-radius: 12px; background: var(--ambar-claro); color: #6B4100; font-size: 14px;
+  }
+  .aviso.info { background: var(--azul-claro); color: #123E70; }
+  .aviso svg { flex: none; width: 20px; height: 20px; margin-top: 1px; }
+
+  /* Login */
+  .logo { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 22px 0 22px; }
+  .logo .marca { width: 72px; height: 72px; border-radius: 20px; background: var(--verde); display: grid; place-items: center; }
+  .logo h2 { margin: 0; color: var(--verde); font-size: 24px; }
+  .logo p { margin: 0; color: var(--texto-2); font-size: 14px; text-align: center; }
+  .pass { position: relative; }
+  .pass button {
+    position: absolute; right: 4px; top: 4px; height: 40px; border: 0; background: none; color: var(--verde); font-weight: 600; font-size: 14px; padding: 0 10px;
+  }
+  .sin-cuenta { margin-top: 18px; padding: 14px; border-radius: 12px; background: var(--verde-claro); text-align: center; font-size: 14px; }
+
+  /* Alertas */
+  .proximo { background: var(--verde); color: var(--blanco); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
+  .proximo .eta { font-size: 30px; font-weight: 800; line-height: 1.1; }
+  .proximo .mapa { margin-top: 10px; border-radius: 10px; overflow: hidden; height: 108px; background: #DCEBE1; }
+  .lista-not { display: flex; flex-direction: column; gap: 10px; }
+  .noti { display: flex; gap: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--borde); position: relative; }
+  .noti.nueva { border-color: var(--verde-2); background: #F7FBF8; }
+  .noti.nueva::after { content: ""; position: absolute; top: 14px; right: 12px; width: 9px; height: 9px; border-radius: 50%; background: var(--verde-2); }
+  .noti .ic { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; }
+  .noti .ic svg { width: 22px; height: 22px; }
+  .noti h4 { margin: 0 0 2px; font-size: 15px; padding-right: 14px; }
+  .noti p { margin: 0; font-size: 14px; color: var(--texto-2); }
+  .noti time { font-size: 12px; color: var(--texto-2); }
+  .ajuste { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 52px; }
+  .switch { width: 52px; height: 30px; border-radius: 999px; background: var(--verde); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--blanco); }
+  .segm { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--verde); border-radius: 10px; overflow: hidden; }
+  .segm span { min-height: 44px; display: grid; place-items: center; font-weight: 600; color: var(--verde); font-size: 15px; }
+  .segm span + span { border-left: 1.5px solid var(--verde); }
+  .segm span.sel { background: var(--verde); color: var(--blanco); }
+  h5 { margin: 0 0 8px; font-size: 15px; }
+
+  /* Reportar */
+  .foto {
+    height: 128px; border: 2px dashed var(--verde-2); border-radius: 14px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px; color: var(--verde); background: #F7FBF8; font-weight: 600;
+  }
+  .foto.lista { border-style: solid; padding: 0; overflow: hidden; position: relative; }
+  .foto.lista .cambiar {
+    position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.65); color: #fff; padding: 6px 10px; border-radius: 8px; font-size: 13px;
+  }
+  .ubic { display: flex; gap: 8px; }
+  .ubic .btn { font-size: 14px; }
+  .paso { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; margin: 4px 0 8px; }
+  .paso b { width: 24px; height: 24px; border-radius: 50%; background: var(--verde); color: #fff; display: grid; place-items: center; font-size: 13px; }
+  .paso.hecho b { background: var(--verde-2); }
+
+  /* Mis reportes */
+  .rep { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+  .rep .mini { width: 64px; height: 64px; border-radius: 10px; flex: none; overflow: hidden; }
+  .rep h4 { margin: 0; font-size: 15px; }
+  .rep p { margin: 2px 0 6px; font-size: 13px; color: var(--texto-2); }
+  .linea { list-style: none; margin: 10px 0 0; padding: 0 0 0 18px; border-left: 2px solid var(--borde); }
+  .linea li { position: relative; padding: 0 0 12px 8px; font-size: 14px; }
+  .linea li::before { content: ""; position: absolute; left: -26px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--borde); border: 2px solid var(--blanco); }
+  .linea li.ok::before { background: var(--verde-2); }
+  .linea li.act::before { background: var(--azul); }
+  .linea li span { display: block; font-size: 12px; color: var(--texto-2); }
+
+  /* ---------- Web (panel) ---------- */
+  .web {
+    width: 1240px; height: 760px; background: var(--blanco); border: 1px solid #C4CCC7; border-radius: 12px; overflow: hidden;
+    display: grid; grid-template-rows: 40px 1fr; box-shadow: 0 6px 24px rgba(0,0,0,.07);
+  }
+  .barra-nav { background: #E9ECEA; display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  .barra-nav i { width: 12px; height: 12px; border-radius: 50%; background: #C9CFCB; display: inline-block; }
+  .barra-nav .url { margin-left: 16px; flex: 1; background: var(--blanco); height: 26px; border-radius: 6px; font-size: 13px; color: var(--texto-2); display: flex; align-items: center; padding: 0 10px; }
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 0; }
+  .lateral { background: #173F2A; color: #D7E8DD; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .lateral .marca { color: #fff; font-weight: 800; font-size: 18px; padding: 0 10px 16px; display: flex; gap: 8px; align-items: center; }
+  .lateral a { color: inherit; text-decoration: none; padding: 10px 12px; border-radius: 8px; font-size: 15px; display: flex; justify-content: space-between; }
+  .lateral a.activo { background: rgba(255,255,255,.14); color: #fff; font-weight: 700; }
+  .lateral .badge { background: var(--ambar); color: #fff; border-radius: 999px; padding: 0 8px; font-size: 12px; line-height: 20px; }
+  .lateral .usuario { margin-top: auto; padding: 12px; border-top: 1px solid rgba(255,255,255,.15); font-size: 14px; }
+  .principal { padding: 20px 24px; overflow: hidden; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .principal h3 { margin: 0; font-size: 22px; }
+  .cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filtros select, .filtros input { min-height: 38px; border: 1.5px solid var(--borde); border-radius: 8px; padding: 0 10px; font-size: 14px; background: #fff; }
+  .contadores { display: flex; gap: 8px; }
+  .contadores span { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--borde); }
+  .contadores span.on { border-color: var(--verde); background: var(--verde-claro); color: var(--verde); font-weight: 700; }
+  .dos { display: grid; grid-template-columns: 1fr 360px; gap: 16px; min-height: 0; flex: 1; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--texto-2); padding: 8px 10px; border-bottom: 1.5px solid var(--borde); }
+  td { padding: 9px 10px; border-bottom: 1px solid #E8ECEA; vertical-align: middle; }
+  tr.sel td { background: #F2F8F4; }
+  tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--verde); }
+  .th-img { width: 44px; height: 34px; border-radius: 6px; overflow: hidden; }
+  .detalle { border: 1px solid var(--borde); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .detalle h4 { margin: 0; font-size: 17px; }
+  .detalle .foto-g { height: 130px; border-radius: 10px; overflow: hidden; }
+  .detalle .mapa-g { height: 110px; border-radius: 10px; overflow: hidden; }
+  .detalle dl { margin: 0; display: grid; grid-template-columns: 96px 1fr; gap: 4px 8px; font-size: 14px; }
+  .detalle dt { color: var(--texto-2); }
+  .detalle dd { margin: 0; }
+  .estados { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .estados span { text-align: center; padding: 8px 4px; font-size: 13px; border-radius: 8px; border: 1.5px solid var(--borde); font-weight: 600; }
+  .estados span.sel { border-color: var(--azul); background: var(--azul-claro); color: var(--azul); }
+
+  /* Indicadores */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi { border: 1px solid var(--borde); border-radius: 12px; padding: 14px 16px; }
+  .kpi .v { font-size: 30px; font-weight: 800; line-height: 1.1; margin: 4px 0; }
+  .kpi .t { font-size: 13px; color: var(--texto-2); }
+  .kpi .d { font-size: 13px; font-weight: 700; }
+  .kpi .d.up { color: var(--verde-2); }
+  .kpi .d.down { color: var(--rojo); }
+  .graficos { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; align-items: stretch; }
+  .web.auto { height: auto; }
+  .graf { border: 1px solid var(--borde); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .graf h4 { margin: 0; font-size: 15px; }
+  .barras { display: flex; flex-direction: column; gap: 9px; font-size: 13px; }
+  .barras .b { display: grid; grid-template-columns: 120px 1fr 44px; align-items: center; gap: 8px; }
+  .barras .pista { height: 14px; background: #EEF1EF; border-radius: 4px; overflow: hidden; }
+  .barras .pista i { display: block; height: 100%; background: var(--verde-2); border-radius: 4px; }
+  .barras .pista i.bajo { background: var(--ambar); }
+  .leyenda { display: flex; gap: 14px; font-size: 12px; color: var(--texto-2); }
+  .leyenda i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+
+<!-- Íconos reutilizables -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-camion" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M2 6h11v10H2zM13 9h5l4 4v3h-9z"/><circle cx="6" cy="17.5" r="2" fill="currentColor"/><circle cx="17" cy="17.5" r="2" fill="currentColor"/></symbol>
+    <symbol id="i-campana" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4"/></symbol>
+    <symbol id="i-camara" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5" fill="currentColor"/></symbol>
+    <symbol id="i-lista" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+    <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-atras" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-hoja" viewBox="0 0 24 24"><path d="M5 19C5 10 10 5 20 4c-1 10-6 15-15 15zM5 19l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-perfil" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <!-- Mapa esquemático -->
+    <symbol id="mapa" viewBox="0 0 320 120" preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="120" fill="#DCEBE1"/>
+      <path d="M0 40h320M0 88h320M70 0v120M170 0v120M260 0v120" stroke="#fff" stroke-width="9"/>
+      <path d="M0 10l120 110M200 0l120 70" stroke="#fff" stroke-width="5"/>
+      <rect x="182" y="52" width="66" height="26" fill="#C9E0D1"/>
+    </symbol>
+    <!-- Foto esquemática de basura acumulada -->
+    <symbol id="foto" viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice">
+      <rect width="160" height="100" fill="#B9C4BD"/>
+      <rect y="62" width="160" height="38" fill="#8E9A92"/>
+      <rect x="0" y="0" width="160" height="40" fill="#9FB0BE"/>
+      <ellipse cx="62" cy="66" rx="30" ry="18" fill="#3F4A43"/>
+      <ellipse cx="94" cy="70" rx="24" ry="14" fill="#56625A"/>
+      <ellipse cx="78" cy="56" rx="16" ry="11" fill="#2C342F"/>
+      <rect x="110" y="58" width="14" height="18" rx="2" fill="#E2E7E4"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="board">
+  <header>
+    <h1>EcoRuta Cusco · Prototipo de interfaz</h1>
+    <p>Laboratorio 4 de Ingeniería de Software I. Maqueta navegable: los botones y pestañas llevan a la pantalla siguiente.</p>
+  </header>
+
+  <nav class="nav" aria-label="Pantallas">
+    <a href="#">Todas</a>
+    <a href="#login">1. Login</a>
+    <a href="#alertas">2. Alertas</a>
+    <a href="#reportar">3a. Reportar basura</a>
+    <a href="#mis-reportes">3b. Mis reportes</a>
+    <a href="#panel-reportes">3c. Panel de reportes</a>
+    <a href="#indicadores">3d. Indicadores</a>
+  </nav>
+
+  <section class="grupo">
+    <h2>App móvil del ciudadano</h2>
+    <div class="fila">
+
+      <!-- ===================== 1. LOGIN ===================== -->
+      <div class="pantalla" id="login">
+        <p class="titulo">1. Login (HU-01, HU-02, HU-05)</p>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>4G ▮▮▮</span></div>
+          <div class="contenido">
+            <div class="logo">
+              <div class="marca"><svg width="40" height="40" style="color:#fff"><use href="#i-camion"/></svg></div>
+              <h2>EcoRuta Cusco</h2>
+              <p>Sabe cuándo pasa el camión y reporta<br>la basura acumulada en tu calle</p>
+            </div>
+            <div class="campo">
+              <label for="usuario">Correo o celular</label>
+              <input id="usuario" value="vecina.wanchaq@gmail.com">
+            </div>
+            <div class="campo error">
+              <label for="clave">Contraseña</label>
+              <div class="pass"><input id="clave" type="password" value="12345"><button type="button">Mostrar</button></div>
+              <div class="ayuda">Contraseña incorrecta. Te quedan 4 intentos.</div>
+            </div>
+            <a class="btn" href="#alertas">Ingresar</a>
+            <p style="text-align:center;margin:12px 0 6px"><a class="enlace" href="#login">¿Olvidaste tu contraseña?</a></p>
+            <p style="text-align:center;margin:0" class="peq muted">¿No tienes cuenta? <a class="enlace" href="#login">Regístrate</a></p>
+            <div class="sin-cuenta">
+              <strong>¿Solo quieres ver tu horario?</strong><br>
+              <a class="enlace" href="#login">Consultar horario sin iniciar sesión →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== 2. ALERTAS ===================== -->
+      <div class="pantalla" id="alertas">
+        <p class="titulo">2. Alertas (HU-10, HU-14, HU-17)</p>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>4G ▮▮▮</span></div>
+          <div class="appbar"><h3>Alertas</h3><svg class="ico"><use href="#i-campana"/></svg></div>
+          <div class="contenido">
+            <div class="proximo">
+              <div class="peq" style="opacity:.85">Camión de tu zona · Wanchaq Sector 3</div>
+              <div class="eta">Llega en 8 min</div>
+              <div class="peq">Saca tu basura ahora · Residuos generales</div>
+              <div class="mapa">
+                <svg width="100%" height="100%"><use href="#mapa"/>
+                  <circle cx="232" cy="64" r="9" fill="#1D5C3A" stroke="#fff" stroke-width="3"/>
+                  <g transform="translate(58 26)" style="color:#B26B00"><circle cx="12" cy="12" r="15" fill="#fff"/><use href="#i-camion" width="24" height="24"/></g>
+                  <path d="M88 40H170V64H222" fill="none" stroke="#1D5C3A" stroke-width="3" stroke-dasharray="6 5"/>
+                </svg>
+              </div>
+            </div>
+
+            <h5>Recientes</h5>
+            <div class="lista-not">
+              <div class="noti nueva">
+                <div class="ic" style="background:var(--verde-claro);color:var(--verde)"><svg><use href="#i-camion"/></svg></div>
+                <div><h4>El camión está cerca</h4><p>Pasará por Av. Los Incas 412 en unos 10 min.</p><time>Hoy, 6:52 a. m.</time></div>
+              </div>
+              <div class="noti nueva">
+                <div class="ic" style="background:var(--ambar-claro);color:var(--ambar)"><svg><use href="#i-info"/></svg></div>
+                <div><h4>Cambio de horario</h4><p>Por el feriado del 1 de noviembre el recojo pasa al sábado 2, de 6:00 a 8:00 a. m.</p><time>Ayer</time></div>
+              </div>
+              <div class="noti">
+                <div class="ic" style="background:var(--azul-claro);color:var(--azul)"><svg><use href="#i-check"/></svg></div>
+                <div><h4>Tu reporte fue atendido</h4><p>Reporte R-0142 · Calle Tullumayo.</p><time>Lun 27 oct</time></div>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+            <h5>Configurar alertas</h5>
+            <div class="ajuste"><span>Avisarme cuando el camión se acerque</span><span class="switch" role="switch" aria-checked="true"></span></div>
+            <p class="peq muted" style="margin:6px 0 8px">¿Con cuánta anticipación?</p>
+            <div class="segm"><span>5 min</span><span class="sel">10 min</span><span>15 min</span></div>
+          </div>
+          <nav class="tabs">
+            <a href="#alertas" class="activo"><svg><use href="#i-campana"/></svg>Alertas</a>
+            <a href="#login"><svg><use href="#i-reloj"/></svg>Horario</a>
+            <a href="#reportar"><svg><use href="#i-camara"/></svg>Reportar</a>
+            <a href="#mis-reportes"><svg><use href="#i-lista"/></svg>Mis reportes</a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- ===================== 3a. REPORTAR ===================== -->
+      <div class="pantalla" id="reportar">
+        <p class="titulo">3a. Reportar basura acumulada (HU-11)</p>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>4G ▮▮▮</span></div>
+          <div class="appbar"><svg class="ico"><use href="#i-atras"/></svg><h3>Reportar basura</h3></div>
+          <div class="contenido">
+            <div class="paso hecho"><b>1</b> Foto del lugar</div>
+            <div class="foto lista">
+              <svg width="100%" height="100%"><use href="#foto"/></svg>
+              <span class="cambiar">Cambiar foto</span>
+            </div>
+
+            <div class="paso" style="margin-top:14px"><b>2</b> Ubicación</div>
+            <div class="card" style="padding:10px;display:flex;gap:10px;align-items:center">
+              <svg width="22" height="22" style="color:var(--verde);flex:none"><use href="#i-pin"/></svg>
+              <div class="peq" style="flex:1"><strong>Calle Tullumayo 380</strong><br><span class="muted">GPS · precisión 8 m</span></div>
+              <a class="enlace peq" href="#reportar">Cambiar en<br>el mapa</a>
+            </div>
+
+            <div class="paso" style="margin-top:14px"><b>3</b> Detalle <span class="muted peq" style="font-weight:400">(opcional)</span></div>
+            <div class="campo">
+              <textarea aria-label="Descripción" style="min-height:60px">Bolsas acumuladas en la esquina desde hace 3 días</textarea>
+            </div>
+
+            <div class="aviso info" style="margin-bottom:14px">
+              <svg><use href="#i-info"/></svg>
+              <span>Te quedan <strong>4 de 5</strong> reportes hoy. La foto y la ubicación son obligatorias.</span>
+            </div>
+            <a class="btn" href="#mis-reportes">Enviar reporte</a>
+          </div>
+          <nav class="tabs">
+            <a href="#alertas"><svg><use href="#i-campana"/></svg>Alertas</a>
+            <a href="#login"><svg><use href="#i-reloj"/></svg>Horario</a>
+            <a href="#reportar" class="activo"><svg><use href="#i-camara"/></svg>Reportar</a>
+            <a href="#mis-reportes"><svg><use href="#i-lista"/></svg>Mis reportes</a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- ===================== 3b. MIS REPORTES ===================== -->
+      <div class="pantalla" id="mis-reportes">
+        <p class="titulo">3b. Mis reportes (HU-15)</p>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>4G ▮▮▮</span></div>
+          <div class="appbar"><h3>Mis reportes</h3></div>
+          <div class="contenido">
+            <div class="aviso" style="background:var(--verde-claro);color:var(--verde);margin-bottom:6px">
+              <svg><use href="#i-check"/></svg>
+              <span><strong>Reporte enviado.</strong> Tu número de seguimiento es <strong>R-0187</strong>.</span>
+            </div>
+
+            <div class="rep">
+              <div class="mini"><svg width="64" height="64"><use href="#foto"/></svg></div>
+              <div style="flex:1">
+                <h4>R-0187 · Calle Tullumayo 380</h4>
+                <p>Enviado hoy, 9:40 a. m.</p>
+                <span class="chip pend">● Pendiente</span>
+              </div>
+            </div>
+
+            <div class="rep" style="flex-direction:column">
+              <div style="display:flex;gap:12px">
+                <div class="mini"><svg width="64" height="64"><use href="#foto"/></svg></div>
+                <div style="flex:1">
+                  <h4>R-0163 · Av. de la Cultura 1020</h4>
+                  <p>Enviado el 25 oct</p>
+                  <span class="chip aten">● En atención</span>
+                </div>
+              </div>
+              <ul class="linea">
+                <li class="ok">Recibido <span>25 oct, 7:12 p. m.</span></li>
+                <li class="act">En atención: asignado a la cuadrilla de Wanchaq <span>26 oct, 8:05 a. m.</span></li>
+                <li>Atendido <span>Pendiente</span></li>
+              </ul>
+            </div>
+
+            <div class="rep">
+              <div class="mini"><svg width="64" height="64"><use href="#foto"/></svg></div>
+              <div style="flex:1">
+                <h4>R-0142 · Calle Tullumayo</h4>
+                <p>Atendido el 27 oct</p>
+                <span class="chip ok">✓ Atendido</span>
+              </div>
+            </div>
+
+            <div class="rep" style="border-bottom:0">
+              <div class="mini"><svg width="64" height="64"><use href="#foto"/></svg></div>
+              <div style="flex:1">
+                <h4>R-0118 · Plaza Túpac Amaru</h4>
+                <p>Rechazado: el punto pertenece a otro distrito (Santiago).</p>
+                <span class="chip rech">✕ Rechazado</span>
+              </div>
+            </div>
+          </div>
+          <nav class="tabs">
+            <a href="#alertas"><svg><use href="#i-campana"/></svg>Alertas</a>
+            <a href="#login"><svg><use href="#i-reloj"/></svg>Horario</a>
+            <a href="#reportar"><svg><use href="#i-camara"/></svg>Reportar</a>
+            <a href="#mis-reportes" class="activo"><svg><use href="#i-lista"/></svg>Mis reportes</a>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="grupo">
+    <h2>Panel web municipal</h2>
+    <div class="fila">
+
+      <!-- ===================== 3c. PANEL DE REPORTES ===================== -->
+      <div class="pantalla" id="panel-reportes">
+        <p class="titulo">3c. Gestión de reportes ciudadanos · Supervisor (HU-12)</p>
+        <div class="web">
+          <div class="barra-nav"><i></i><i></i><i></i><div class="url">panel.ecorutacusco.gob.pe/reportes</div></div>
+          <div class="app">
+            <aside class="lateral">
+              <div class="marca"><svg width="22" height="22"><use href="#i-camion"/></svg>EcoRuta</div>
+              <a href="#panel-reportes">Flota en vivo</a>
+              <a href="#panel-reportes">Asignación de rutas</a>
+              <a href="#panel-reportes" class="activo">Reportes ciudadanos <span class="badge">12</span></a>
+              <a href="#indicadores">Indicadores</a>
+              <div class="usuario">Rosa Quispe<br><span style="opacity:.7;font-size:13px">Supervisora · Wanchaq</span></div>
+            </aside>
+            <main class="principal">
+              <div class="cab">
+                <h3>Reportes ciudadanos</h3>
+                <div class="filtros">
+                  <select aria-label="Zona"><option>Todas las zonas</option></select>
+                  <input aria-label="Buscar" placeholder="Buscar dirección o código">
+                </div>
+              </div>
+              <div class="contadores">
+                <span class="on">Pendientes (12)</span><span>En atención (7)</span><span>Atendidos (58)</span><span>Rechazados (4)</span>
+              </div>
+              <div class="dos">
+                <div style="overflow:hidden">
+                  <table>
+                    <thead><tr><th></th><th>Código</th><th>Dirección</th><th>Zona</th><th>Recibido</th><th>Estado</th></tr></thead>
+                    <tbody>
+                      <tr><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td>R-0151</td><td>Jr. Pumacahua 210</td><td>Wanchaq S2</td><td>hace 3 días</td><td><span class="chip pend">Pendiente</span></td></tr>
+                      <tr class="sel"><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td><strong>R-0163</strong></td><td>Av. de la Cultura 1020</td><td>Wanchaq S3</td><td>hace 2 días</td><td><span class="chip pend">Pendiente</span></td></tr>
+                      <tr><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td>R-0170</td><td>Calle Saphi 540</td><td>Centro</td><td>ayer</td><td><span class="chip pend">Pendiente</span></td></tr>
+                      <tr><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td>R-0174</td><td>Av. Garcilaso 655</td><td>Wanchaq S1</td><td>ayer</td><td><span class="chip pend">Pendiente</span></td></tr>
+                      <tr><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td>R-0179</td><td>Urb. Magisterio B-12</td><td>Magisterio</td><td>hoy, 7:30</td><td><span class="chip pend">Pendiente</span></td></tr>
+                      <tr><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td>R-0183</td><td>Av. Tacna 130</td><td>Wanchaq S2</td><td>hoy, 8:55</td><td><span class="chip pend">Pendiente</span></td></tr>
+                      <tr><td><div class="th-img"><svg width="44" height="34"><use href="#foto"/></svg></div></td><td>R-0187</td><td>Calle Tullumayo 380</td><td>Centro</td><td>hoy, 9:40</td><td><span class="chip pend">Pendiente</span></td></tr>
+                    </tbody>
+                  </table>
+                  <p class="peq muted" style="margin:10px 0 0">Ordenados del más antiguo al más reciente · 7 de 12</p>
+                </div>
+                <aside class="detalle">
+                  <div class="cab"><h4>R-0163</h4><span class="chip pend">Pendiente</span></div>
+                  <div class="foto-g"><svg width="100%" height="100%"><use href="#foto"/></svg></div>
+                  <dl>
+                    <dt>Dirección</dt><dd>Av. de la Cultura 1020</dd>
+                    <dt>Recibido</dt><dd>25 oct, 7:12 p. m.</dd>
+                    <dt>Ciudadano</dt><dd>Usuario #4821</dd>
+                    <dt>Detalle</dt><dd>Montículo junto al paradero, con perros rompiendo las bolsas.</dd>
+                  </dl>
+                  <div class="mapa-g"><svg width="100%" height="100%"><use href="#mapa"/><circle cx="170" cy="64" r="8" fill="#B3261E" stroke="#fff" stroke-width="3"/></svg></div>
+                  <div class="peq" style="font-weight:700">Cambiar estado</div>
+                  <div class="estados"><span class="sel">En atención</span><span>Atendido</span><span>Rechazar</span></div>
+                  <a class="btn peq" style="width:100%" href="#panel-reportes">Guardar y notificar al ciudadano</a>
+                </aside>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== 3d. INDICADORES ===================== -->
+      <div class="pantalla" id="indicadores">
+        <p class="titulo">3d. Indicadores del servicio · Gerente (HU-16)</p>
+        <div class="web auto">
+          <div class="barra-nav"><i></i><i></i><i></i><div class="url">panel.ecorutacusco.gob.pe/indicadores</div></div>
+          <div class="app">
+            <aside class="lateral">
+              <div class="marca"><svg width="22" height="22"><use href="#i-camion"/></svg>EcoRuta</div>
+              <a href="#panel-reportes">Flota en vivo</a>
+              <a href="#panel-reportes">Asignación de rutas</a>
+              <a href="#panel-reportes">Reportes ciudadanos <span class="badge">12</span></a>
+              <a href="#indicadores" class="activo">Indicadores</a>
+              <div class="usuario">Jorge Mamani<br><span style="opacity:.7;font-size:13px">Gerente de Limpieza Pública</span></div>
+            </aside>
+            <main class="principal">
+              <div class="cab">
+                <h3>Indicadores del servicio</h3>
+                <div class="filtros">
+                  <select aria-label="Rango"><option>1 – 28 oct 2026</option></select>
+                  <select aria-label="Zona"><option>Todas las zonas</option></select>
+                  <a class="btn sec peq" href="#indicadores">Exportar Excel</a>
+                  <a class="btn sec peq" href="#indicadores">Exportar PDF</a>
+                </div>
+              </div>
+              <div class="kpis">
+                <div class="kpi"><div class="t">Rutas completadas a tiempo</div><div class="v">87 %</div><div class="d up">▲ 5 pts vs. septiembre</div></div>
+                <div class="kpi"><div class="t">Reportes recibidos</div><div class="v">81</div><div class="d muted">63 atendidos · 78 %</div></div>
+                <div class="kpi"><div class="t">Tiempo promedio de atención</div><div class="v">1,8 días</div><div class="d up">▼ 0,6 días</div></div>
+                <div class="kpi"><div class="t">Paradas no atendidas</div><div class="v">42</div><div class="d down">▲ 9 · calle bloqueada (60 %)</div></div>
+              </div>
+              <div class="graficos">
+                <div class="graf">
+                  <h4>Rutas completadas a tiempo por zona</h4>
+                  <div class="leyenda"><span><i style="background:var(--verde-2)"></i>Meta cumplida (≥ 85 %)</span><span><i style="background:var(--ambar)"></i>Bajo la meta</span></div>
+                  <div class="barras">
+                    <div class="b"><span>Wanchaq S1</span><div class="pista"><i style="width:96%"></i></div><span>96 %</span></div>
+                    <div class="b"><span>Wanchaq S2</span><div class="pista"><i style="width:92%"></i></div><span>92 %</span></div>
+                    <div class="b"><span>Wanchaq S3</span><div class="pista"><i style="width:89%"></i></div><span>89 %</span></div>
+                    <div class="b"><span>Magisterio</span><div class="pista"><i style="width:86%"></i></div><span>86 %</span></div>
+                    <div class="b"><span>Centro</span><div class="pista"><i class="bajo" style="width:74%"></i></div><span>74 %</span></div>
+                    <div class="b"><span>Santa Mónica</span><div class="pista"><i class="bajo" style="width:68%"></i></div><span>68 %</span></div>
+                  </div>
+                </div>
+                <div class="graf">
+                  <h4>Reportes ciudadanos por semana</h4>
+                  <div class="leyenda"><span><i style="background:#9FC7AE"></i>Recibidos</span><span><i style="background:var(--verde)"></i>Atendidos</span></div>
+                  <svg viewBox="0 0 360 200" width="100%" style="max-height:230px" role="img" aria-label="Reportes recibidos y atendidos por semana">
+                    <g stroke="#E3E8E5"><line x1="30" y1="20" x2="350" y2="20"/><line x1="30" y1="70" x2="350" y2="70"/><line x1="30" y1="120" x2="350" y2="120"/><line x1="30" y1="170" x2="350" y2="170"/></g>
+                    <g font-size="11" fill="#55605A" text-anchor="end"><text x="24" y="24">30</text><text x="24" y="74">20</text><text x="24" y="124">10</text><text x="24" y="174">0</text></g>
+                    <g fill="#9FC7AE"><rect x="52" y="85" width="26" height="85" rx="3"/><rect x="132" y="65" width="26" height="105" rx="3"/><rect x="212" y="55" width="26" height="115" rx="3"/><rect x="292" y="75" width="26" height="95" rx="3"/></g>
+                    <g fill="#1D5C3A"><rect x="80" y="110" width="26" height="60" rx="3"/><rect x="160" y="90" width="26" height="80" rx="3"/><rect x="240" y="75" width="26" height="95" rx="3"/><rect x="320" y="90" width="26" height="80" rx="3"/></g>
+                    <g font-size="11" fill="#55605A" text-anchor="middle"><text x="79" y="188">Sem 1</text><text x="159" y="188">Sem 2</text><text x="239" y="188">Sem 3</text><text x="319" y="188">Sem 4</text></g>
+                  </svg>
+                </div>
+              </div>
+              <p class="peq muted" style="margin:0">Datos de ejemplo para el prototipo.</p>
+            </main>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script>
+  // Navegación del prototipo: #pantalla muestra solo esa pantalla; sin hash se ve el storyboard completo.
+  function mostrar() {
+    const id = location.hash.slice(1);
+    const objetivo = id && document.getElementById(id);
+    document.body.classList.toggle("solo", !!objetivo);
+    document.querySelectorAll(".pantalla").forEach(p => p.classList.toggle("visible", p === objetivo));
+    document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("activo", a.getAttribute("href") === (objetivo ? "#" + id : "#")));
+    window.scrollTo(0, 0);
+  }
+  if (new URLSearchParams(location.search).has("captura")) document.body.classList.add("captura");
+  window.addEventListener("hashchange", mostrar);
+  mostrar();
+</script>
+</body>
+</html>

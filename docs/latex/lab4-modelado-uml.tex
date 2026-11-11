@@ -1,0 +1,411 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-noshorthands]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+\usepackage{pdflscape}
+\usepackage{float}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{verde}{HTML}{1D5C3A}
+\definecolor{verdeclaro}{HTML}{E8F4EC}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\setlist{nosep,leftmargin=*}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+\newcommand{\pantalla}[2]{\includegraphics[height=#2]{../img/lab4-prototipo-#1.png}}
+
+\title{\textbf{Laboratorio 4: Modelado del sistema: UML y prototipos}\\[0.4em]
+\large EcoRuta Cusco: sistema de gestión de recolección de residuos sólidos}
+\author{Gisel Dayana Farfan Gomez\\ Ingeniería de Software I}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------
+\section{Punto de partida}
+
+Los modelos se construyeron a partir de las historias de usuario del Laboratorio 3:
+
+\begin{itemize}
+  \item \textbf{Actores:} salen de los roles de usuario (ciudadano, operador, supervisor, administrador, gerente y reciclador).
+  \item \textbf{Casos de uso:} cada historia HU-01 a HU-18 se convirtió en uno o más casos de uso. HU-19 (SMS/WhatsApp) quedó fuera porque es \textit{Won't} en esta versión.
+  \item \textbf{Clases:} salen de los sustantivos de las historias y de sus criterios de aceptación (zona, ruta, parada, camión, reporte, horario, etc.).
+  \item \textbf{Pantallas del prototipo:} salen de las historias \textit{Must} y \textit{Should} que tocan el login, las alertas y los reportes.
+\end{itemize}
+
+\begin{center}
+\small
+\begin{tabular}{L{3.6cm} L{3.4cm} L{8cm}}
+\toprule
+\textbf{Parte} & \textbf{Herramienta} & \textbf{Archivo} \\
+\midrule
+Diagrama de casos de uso & Draw.io & \texttt{docs/diagramas/lab4-casos-de-uso.drawio} \\
+Diagrama de clases & Draw.io & \texttt{docs/diagramas/lab4-clases.drawio} \\
+Prototipo & HTML/CSS (maqueta navegable) & \texttt{docs/prototipo/index.html} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------
+\section{Diagrama de casos de uso}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../img/lab4-casos-de-uso.png}
+  \caption{Diagrama de casos de uso de EcoRuta Cusco}
+\end{figure}
+
+\subsection{Actores}
+
+El laboratorio pide tres actores: \textbf{Ciudadano}, \textbf{Administrador} y \textbf{Sistema}. Para que el diagrama sea coherente con los roles del Lab 3 se hicieron dos ajustes:
+
+{\small
+\begin{longtable}{L{2.6cm} L{6.2cm} L{6.6cm}}
+\toprule
+\textbf{Actor del lab} & \textbf{Cómo se modeló} & \textbf{Por qué} \\
+\midrule
+\endhead
+Ciudadano & \textbf{Ciudadano} (actor principal) y \textbf{Reciclador formalizado}, que hereda de Ciudadano & El reciclador usa todo lo del ciudadano y además consulta puntos de reciclaje (HU-18) \\
+Administrador & \textbf{Personal municipal} (actor general) con cuatro especializaciones: \textbf{Administrador municipal}, \textbf{Supervisor}, \textbf{Operador de camión} y \textbf{Gerente de limpieza pública} & En el Lab 3 cada rol tiene funciones distintas (HU-02 pide que cada uno acceda solo a lo suyo). La generalización evita repetir ``Iniciar sesión'' en cada uno \\
+Sistema & \textbf{Sistema (temporizador)} y \textbf{Servicio de notificaciones push} como actores secundarios, fuera del límite del sistema & En UML el sistema es el rectángulo, no un actor. Lo que sí actúa ``desde fuera'' es el reloj que dispara las alertas automáticas y el servicio externo que entrega las notificaciones al celular \\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{Casos de uso}
+
+{\small
+\begin{longtable}{C{1.2cm} L{6.2cm} L{5.2cm} L{2.6cm}}
+\toprule
+\textbf{ID} & \textbf{Caso de uso} & \textbf{Actor} & \textbf{Historia} \\
+\midrule
+\endhead
+UC01 & Iniciar sesión & Ciudadano, Personal municipal & HU-01, HU-02 \\
+UC02 & Registrarse & Ciudadano & HU-01 \\
+UC03 & Consultar horario de recojo & Ciudadano & HU-05 \\
+UC04 & Ver camión en el mapa & Ciudadano & HU-14 \\
+UC05 & Configurar alertas & Ciudadano & HU-10 \\
+UC06 & Reportar basura acumulada & Ciudadano & HU-11 \\
+UC07 & Ver estado de mis reportes & Ciudadano & HU-15 \\
+UC08 & Consultar puntos de reciclaje & Reciclador formalizado & HU-18 \\
+UC09 & Adjuntar foto y ubicación & (incluido por UC06) & HU-11 \\
+UC10 & Enviar alerta de camión cercano & Sistema (temporizador) & HU-10 \\
+UC11 & Enviar notificación & Servicio de notificaciones push & HU-10, HU-15, HU-17 \\
+UC12 & Gestionar cuentas y roles & Administrador municipal & HU-02 \\
+UC13 & Gestionar zonas y rutas & Administrador municipal & HU-03 \\
+UC14 & Definir horarios de recojo & Administrador municipal & HU-04 \\
+UC15 & Publicar aviso de cambio de horario & Administrador municipal & HU-17 \\
+UC16 & Asignar ruta a camión y operador & Supervisor & HU-06 \\
+UC17 & Monitorear flota en tiempo real & Supervisor & HU-09 \\
+UC18 & Gestionar reportes ciudadanos & Supervisor & HU-12 \\
+UC19 & Ver ruta del día & Operador de camión & HU-07 \\
+UC20 & Transmitir ubicación GPS & Operador de camión & HU-08 \\
+UC21 & Registrar parada atendida & Operador de camión & HU-13 \\
+UC22 & Ver indicadores del servicio & Gerente de limpieza pública & HU-16 \\
+UC23 & Exportar indicadores & (extiende UC22) & HU-16 \\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{Relaciones}
+
+\begin{itemize}
+  \item \textbf{«include»}
+  \begin{itemize}
+    \item UC06 $\rightarrow$ UC09: no se puede enviar un reporte sin foto y ubicación (criterio 2 de HU-11, riesgo R7).
+    \item UC10, UC15 y UC18 $\rightarrow$ UC11: la alerta del camión, el aviso de cambio de horario y el cambio de estado de un reporte terminan siempre en una notificación al ciudadano.
+  \end{itemize}
+  \item \textbf{«extend»}
+  \begin{itemize}
+    \item UC23 $\rightarrow$ UC22: exportar es opcional. El gerente puede ver los indicadores sin exportarlos.
+  \end{itemize}
+  \item \textbf{Generalización de actores}
+  \begin{itemize}
+    \item Reciclador $\rightarrow$ Ciudadano.
+    \item Administrador, Supervisor, Operador y Gerente $\rightarrow$ Personal municipal.
+  \end{itemize}
+  \item \textbf{UC01 como requisito:} todos los casos de uso necesitan sesión, excepto UC02, UC03 y UC08. Así se cumple el criterio 3 de HU-05: la consulta de horario se puede hacer sin cuenta. Esto se indica con una nota en el diagrama en lugar de dibujar un «include» desde cada caso de uso, para no saturarlo de líneas.
+\end{itemize}
+
+% ---------------------------------------------------------------
+\section{Diagrama de clases}
+
+El diagrama completo está en la Figura~\ref{fig:clases}, en una página horizontal para que se pueda leer.
+
+\subsection{Clases}
+
+El laboratorio da como ejemplo \textbf{Usuario}, \textbf{Residuo}, \textbf{Ruta} y \textbf{Camión}. Las cuatro están en el modelo y se completaron con las clases que piden las historias del Lab 3:
+
+{\small
+\begin{longtable}{L{3.4cm} L{9.4cm} L{2.6cm}}
+\toprule
+\textbf{Clase} & \textbf{Responsabilidad} & \textbf{Historias} \\
+\midrule
+\endhead
+\textbf{Usuario} \textit{(abstracta)} & Datos de acceso comunes a todos: correo o celular, contraseña cifrada, estado activo & HU-01, HU-02 \\
+Ciudadano & Dirección, ubicación y preferencias de alerta (activas y minutos de anticipación) & HU-01, HU-05, HU-10 \\
+PersonalMunicipal & Empleado con un \textbf{Rol} que define qué puede hacer & HU-02 \\
+Zona & Área de la ciudad delimitada en el mapa. Sabe si una coordenada está dentro & HU-03, HU-05 \\
+Horario & Día y rango horario de recojo de una zona para un tipo de residuo & HU-04 \\
+\textbf{Residuo} & Catálogo de tipos de residuo (general, orgánico, plástico, papel\ldots) y si es reciclable & HU-04, HU-18 \\
+\textbf{Ruta} & Recorrido planificado dentro de una zona & HU-03 \\
+Parada & Punto de una ruta, con su orden & HU-03, HU-07 \\
+\textbf{Camion} & Vehículo de la flota y su estado & HU-06 \\
+AsignacionRuta & Une una ruta, un camión y un operador en una fecha. Guarda el avance del recorrido & HU-06, HU-07, HU-09 \\
+UbicacionGPS & Posición enviada por la app durante una asignación. Marca si ya se sincronizó (modo offline) & HU-08, HU-14 \\
+RegistroParada & Parada atendida o no atendida, con motivo y hora & HU-13 \\
+ReporteCiudadano & Reporte de basura acumulada con foto, ubicación, estado y motivo de rechazo & HU-11, HU-12, HU-15 \\
+Notificacion & Mensaje enviado a un ciudadano (camión cercano, aviso o estado de reporte) & HU-10, HU-15, HU-17 \\
+Aviso & Cambio temporal de horario para una o más zonas, con fecha de vigencia & HU-17 \\
+PuntoReciclaje & Punto de acopio de reciclables con sus días de atención & HU-18 \\
+\bottomrule
+\end{longtable}
+}
+
+Además hay un tipo de dato y varias enumeraciones:
+
+\begin{itemize}
+  \item \textbf{Tipo de dato:} \texttt{Coordenada} (latitud y longitud).
+  \item \textbf{Enumeraciones:} \texttt{Rol}, \texttt{EstadoReporte}, \texttt{EstadoAsignacion}, \texttt{EstadoParada},\\ \texttt{EstadoCamion}, \texttt{TipoNotificacion} y \texttt{DiaSemana}.
+\end{itemize}
+
+\begin{landscape}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../img/lab4-clases.png}
+  \caption{Diagrama de clases de EcoRuta Cusco}
+  \label{fig:clases}
+\end{figure}
+\end{landscape}
+
+\subsection{Decisiones de diseño}
+
+\begin{itemize}
+  \item \textbf{Herencia en Usuario:} el ciudadano y el personal comparten login, pero tienen datos y permisos distintos. Usuario es abstracta porque nunca existe un usuario ``genérico''.
+  \item \textbf{AsignacionRuta como clase propia:} la relación entre ruta, camión y operador cambia cada día (HU-06). Por eso no es una asociación directa entre Ruta y Camion. La asignación es la que acumula las ubicaciones GPS y los registros de parada de ese recorrido.
+  \item \textbf{Composición (rombo negro)} donde la parte no tiene sentido sin el todo:
+  \begin{itemize}
+    \item Zona $\blacklozenge$ Horario y Zona $\blacklozenge$ Ruta.
+    \item Ruta $\blacklozenge$ Parada (mínimo 2 paradas).
+    \item AsignacionRuta $\blacklozenge$ UbicacionGPS y AsignacionRuta $\blacklozenge$ RegistroParada.
+  \end{itemize}
+  \item \textbf{Residuo como catálogo:} el sistema no rastrea cada bolsa de basura. Lo que importa es \textit{qué tipo} de residuo se recoge en cada horario y qué acepta cada punto de reciclaje.
+  \item \textbf{Asociaciones con flecha (navegables)} cuando solo un lado necesita conocer al otro. Por ejemplo, un Horario sabe qué Residuo recoge, pero el Residuo no necesita conocer sus horarios.
+  \item \textbf{Datos personales mínimos (riesgo R8):} el ciudadano guarda solo correo o celular, contraseña cifrada (\texttt{contrasenaHash}) y dirección. En el reporte, el supervisor ve un identificador y no los datos personales.
+\end{itemize}
+
+% ---------------------------------------------------------------
+\section{Prototipo}
+
+El prototipo es una \textbf{maqueta navegable en HTML/CSS} (\texttt{docs/prototipo/index.html}). Se abre con doble clic en cualquier navegador:
+
+\begin{itemize}
+  \item Sin nada después de la dirección se ven todas las pantallas juntas, como \textit{storyboard}.
+  \item Con \texttt{\#login}, \texttt{\#alertas}, \texttt{\#reportar}, etc. se ve una sola pantalla.
+  \item Los botones y las pestañas inferiores llevan a la pantalla siguiente.
+\end{itemize}
+
+Se eligió HTML en lugar de Figma para que el prototipo quede versionado en el repositorio junto con el resto de la documentación. Si se necesita en Figma, la página se puede importar con un plugin que convierte HTML en capas de Figma (por ejemplo, \textit{html.to.design}).
+
+``Reportes'' tiene dos significados en el proyecto, así que se diseñaron los dos:
+\begin{itemize}
+  \item el \textbf{reporte ciudadano} de basura acumulada (app móvil);
+  \item los \textbf{reportes del servicio} para la municipalidad (panel web).
+\end{itemize}
+
+Los datos que aparecen en las pantallas son de ejemplo.
+
+\subsection{Login y Alertas}
+
+\begin{figure}[H]
+  \centering
+  \pantalla{login}{10.5cm}\hspace{1cm}\pantalla{alertas}{10.5cm}
+  \caption{Login (izquierda) y Alertas (derecha)}
+\end{figure}
+
+\textbf{Login (HU-01, HU-02, HU-05)}
+\begin{itemize}
+  \item Un solo campo para \textbf{correo o celular}, como en HU-01.
+  \item El error se muestra debajo del campo, en rojo, e indica cuántos intentos quedan.
+  \item Botón \textbf{Mostrar} contraseña, para no escribirla a ciegas en el celular.
+  \item \textbf{Consultar horario sin iniciar sesión} en un recuadro visible (criterio 3 de HU-05). Así quien no quiere crear una cuenta igual obtiene valor (riesgo R1).
+  \item La misma pantalla sirve para el personal municipal: según el rol (HU-02), después del login se abre la app del operador o el panel web.
+\end{itemize}
+
+\textbf{Alertas (HU-10, HU-14, HU-17)}
+\begin{itemize}
+  \item \textbf{Tarjeta principal} con el tiempo estimado de llegada del camión, en letra grande, y el mapa con su posición (HU-14).
+  \item \textbf{Lista de notificaciones} recientes con ícono y color por tipo: camión cercano, cambio de horario (HU-17) y reporte atendido (HU-15). Las no leídas tienen un punto verde.
+  \item \textbf{Configurar alertas} en la misma pantalla: activar o desactivar, y elegir 5, 10 o 15 minutos de anticipación (criterio 2 de HU-10).
+\end{itemize}
+
+\subsection{Reportes del ciudadano}
+
+\begin{figure}[H]
+  \centering
+  \pantalla{reportar}{10.5cm}\hspace{1cm}\pantalla{mis-reportes}{10.5cm}
+  \caption{Reportar basura (izquierda) y Mis reportes (derecha)}
+\end{figure}
+
+\textbf{Reportar basura acumulada (HU-11)}
+\begin{itemize}
+  \item El formulario está dividido en \textbf{3 pasos numerados}: foto, ubicación y detalle. El detalle es opcional y se marca como tal.
+  \item La ubicación se toma del GPS y se puede \textbf{cambiar en el mapa} si no es exacta.
+  \item Un aviso informa cuántos reportes quedan en el día (\textbf{4 de 5}) y recuerda que la foto y la ubicación son obligatorias (riesgo R7).
+\end{itemize}
+
+\textbf{Mis reportes (HU-15)}
+\begin{itemize}
+  \item Al enviar se confirma con el \textbf{número de seguimiento} (criterio 1 de HU-11).
+  \item Cada reporte muestra su estado con color y texto: Pendiente, En atención, Atendido y Rechazado. No depende solo del color.
+  \item La línea de tiempo muestra cada cambio con su fecha. Los rechazados muestran el motivo (criterio 3 de HU-15).
+\end{itemize}
+
+\subsection{Reportes de la municipalidad}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../img/lab4-prototipo-panel-reportes.png}
+  \caption{Gestión de reportes ciudadanos (supervisor)}
+\end{figure}
+
+\textbf{Gestión de reportes ciudadanos (HU-12)}
+\begin{itemize}
+  \item Bandeja ordenada \textbf{del más antiguo al más reciente}, con contadores por estado (criterio 1 de HU-12).
+  \item Al seleccionar un reporte se abre el detalle a la derecha, con foto, datos y mapa.
+  \item Para cambiar el estado basta un clic, y el botón deja claro que \textbf{se notificará al ciudadano} (UC18 incluye UC11).
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../img/lab4-prototipo-indicadores.png}
+  \caption{Indicadores del servicio (gerente)}
+\end{figure}
+
+\textbf{Indicadores del servicio (HU-16)}
+\begin{itemize}
+  \item Filtros por \textbf{rango de fechas} y por \textbf{zona}, y exportación a \textbf{Excel y PDF} (criterios 1 a 3 de HU-16, UC23).
+  \item Cuatro indicadores clave, cada uno con su variación respecto al período anterior.
+  \item Las zonas que están \textbf{bajo la meta} se resaltan con otro color, para ver de inmediato dónde actuar.
+\end{itemize}
+
+% ---------------------------------------------------------------
+\section{Trabajo extra}
+
+\subsection{Mejoras de diseño UX}
+
+Las pantallas se revisaron con las \textbf{10 heurísticas de usabilidad de Nielsen} y con pautas básicas de accesibilidad. Estas son las decisiones que salieron de esa revisión:
+
+{\small
+\begin{longtable}{L{6.4cm} L{4.6cm} L{4.4cm}}
+\toprule
+\textbf{Mejora aplicada} & \textbf{Heurística / pauta} & \textbf{Riesgo o historia} \\
+\midrule
+\endhead
+Botones y campos de \textbf{48\,px de alto} como mínimo y texto base de 16\,px & Accesibilidad (tamaño táctil) & R1: usuarios mayores o con poca experiencia digital \\
+Estados con \textbf{color + texto + ícono} (Atendido, Rechazado) & Accesibilidad (no depender solo del color) & HU-12, HU-15 \\
+El tiempo de llegada del camión es lo primero que se ve en Alertas & Visibilidad del estado del sistema & HU-10, HU-14 \\
+Errores \textbf{junto al campo} y en lenguaje simple & Ayudar a reconocer y recuperarse de errores & HU-01 \\
+Aviso del límite diario \textbf{antes} de enviar el reporte & Prevención de errores & R7, HU-11 \\
+Confirmación con número de seguimiento al enviar & Visibilidad del estado del sistema & HU-11 \\
+Consultar horario sin cuenta & Flexibilidad y eficiencia de uso & R1, HU-05 \\
+Formulario de reporte en 3 pasos numerados & Reconocer antes que recordar & HU-11 \\
+Barra inferior con 4 secciones fijas, siempre en el mismo lugar & Consistencia y estándares & Toda la app móvil \\
+Vocabulario del vecino (``Saca tu basura ahora'', ``camión de tu zona'') en lugar de términos técnicos & Relación entre el sistema y el mundo real & R1 \\
+Paleta verde institucional con contraste alto entre texto y fondo & Diseño estético y minimalista / contraste WCAG & Todas \\
+\bottomrule
+\end{longtable}
+}
+
+\textbf{Mejoras pendientes} para la siguiente versión del prototipo:
+\begin{itemize}
+  \item Pantalla del \textbf{operador de camión} (HU-07, HU-13), con botones aún más grandes para usarla dentro de la cabina (riesgo R3).
+  \item Indicador visible de \textbf{``sin conexión''} y de datos pendientes de sincronizar (riesgo R4).
+  \item Versión en \textbf{quechua} de los textos principales de la app ciudadana.
+\end{itemize}
+
+\subsection{Validación con usuarios}
+
+La validación se planificó como una \textbf{prueba de usabilidad moderada} con el prototipo navegable. Los resultados se registrarán en la tabla de registro de resultados cuando se realicen las sesiones.
+
+\subsubsection*{Participantes}
+
+\begin{center}
+\begin{tabular}{L{6.6cm} C{2cm} L{6.4cm}}
+\toprule
+\textbf{Perfil} & \textbf{Cantidad} & \textbf{Pantallas que evalúa} \\
+\midrule
+Ciudadanos (al menos 2 mayores de 50 años) & 5 & Login, Alertas, Reportar, Mis reportes \\
+Personal de limpieza pública (supervisor o administrativo) & 2 & Panel de reportes, Indicadores \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Cinco usuarios por perfil suelen bastar para encontrar la mayoría de los problemas de usabilidad (Nielsen, 2000).
+
+\subsubsection*{Tareas}
+
+{\small
+\begin{longtable}{L{2.2cm} L{7.8cm} L{5.4cm}}
+\toprule
+\textbf{\#} & \textbf{Tarea que se le pide al participante} & \textbf{Éxito si\ldots} \\
+\midrule
+\endhead
+T1 & ``Averigua a qué hora pasa el camión por tu casa, sin crear una cuenta'' & Llega a la consulta de horario desde el login \\
+T2 & ``Haz que la app te avise 15 minutos antes de que llegue el camión'' & Cambia la anticipación a 15 min \\
+T3 & ``Reporta la basura acumulada de la esquina de tu cuadra'' & Completa los 3 pasos y envía \\
+T4 & ``¿Qué pasó con el reporte que enviaste la semana pasada?'' & Encuentra el estado y la fecha del último cambio \\
+T5 \textit{(personal)} & ``Marca el reporte más antiguo como `en atención'\,'' & Selecciona el reporte correcto y cambia su estado \\
+T6 \textit{(personal)} & ``¿Qué zona tuvo peor cumplimiento este mes? Descárgalo en Excel'' & Identifica la zona y usa Exportar \\
+\bottomrule
+\end{longtable}
+}
+
+\subsubsection*{Métricas}
+
+\begin{itemize}
+  \item \textbf{Tasa de éxito} por tarea (completada sin ayuda / con ayuda / no completada).
+  \item \textbf{Tiempo} por tarea.
+  \item \textbf{Errores} (clics en lugares equivocados, vueltas atrás).
+  \item \textbf{SUS} (System Usability Scale): cuestionario de 10 preguntas al final. Un puntaje de 68 o más se considera aceptable.
+  \item \textbf{Comentarios} del participante pensando en voz alta.
+\end{itemize}
+
+\subsubsection*{Registro de resultados}
+
+{\small
+\begin{center}
+\begin{tabular}{C{1cm} L{1.7cm} *{6}{C{0.75cm}} C{0.9cm} L{4.2cm}}
+\toprule
+\textbf{P} & \textbf{Perfil} & \textbf{T1} & \textbf{T2} & \textbf{T3} & \textbf{T4} & \textbf{T5} & \textbf{T6} & \textbf{SUS} & \textbf{Problemas observados} \\
+\midrule
+P1 & Ciudadano & & & & & -- & -- & & \\
+P2 & Ciudadano & & & & & -- & -- & & \\
+P3 & Ciudadano & & & & & -- & -- & & \\
+P4 & Ciudadano & & & & & -- & -- & & \\
+P5 & Ciudadano & & & & & -- & -- & & \\
+P6 & Personal & -- & -- & -- & -- & & & & \\
+P7 & Personal & -- & -- & -- & -- & & & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+Cada problema encontrado se registrará como una tarea en el backlog de Jira, con su severidad (alta, media o baja) y la pantalla afectada. Las de severidad alta se corregirán antes de pasar al diseño final.
+
+\end{document}
