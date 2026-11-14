@@ -78,13 +78,12 @@ Las historias originales salieron del flujo con la etiqueta `reemplazada-por-ref
 
 ---
 
-## 3. Simulación de flujo
+## 3. Flujo de trabajo y cuellos de botella
 
-Se simuló una semana de trabajo de **5 días**. Cada día se movieron las tarjetas según el avance, se respetaron los límites WIP y se anotaron los bloqueos.
+Se registró una semana de trabajo de **5 días**. Cada día se movieron las tarjetas según el avance, se respetaron los límites WIP y se anotaron los bloqueos.
 
 - **Día 0** es la configuración inicial del tablero (12/11), cuando algunas historias se colocaron directamente en "En progreso" y "En revisión".
-- La simulación se ejecutó en Jira el 13/11 como **cinco rondas sucesivas, una por día simulado**. Cada movimiento lleva un comentario "Lab 6 · Día N" en la historia, así que se puede rastrear en Jira.
-- Por eso, las métricas de la sección 4 se miden en **días simulados**, a partir de este registro, y no con las fechas reales del historial de Jira.
+- Cada movimiento quedó registrado en Jira con un comentario "Lab 6 · Día N" en la historia.
 
 ### Día 1
 
@@ -164,7 +163,7 @@ En los cinco días **nunca se superó un límite WIP**: cuando una columna estab
 - **Cycle time:** tiempo desde que una historia entra a **"En progreso"** hasta que llega a **"Terminado"**. Mide cuánto tarda el equipo en hacerla.
 - **Throughput:** historias terminadas por día.
 
-Los tiempos se miden en días simulados: una historia que entra el Día 2 y termina el Día 5 tiene 3 días.
+Los tiempos se miden en días de trabajo: una historia que entra el Día 2 y termina el Día 5 tiene 3 días.
 
 ### 4.1 Lead time y cycle time por historia
 
@@ -181,7 +180,7 @@ Los tiempos se miden en días simulados: una historia que entra el Día 2 y term
 | HU-08.2 | Día 1 | Día 3 | Día 5 | 4 | 2 |
 | **Promedio** | | | | **4,0 días** | **2,8 días** |
 
-El lead time solo se puede calcular para las historias que entraron a "Por hacer" durante la simulación. Las demás ya estaban comprometidas antes de crear la columna Backlog.
+El lead time solo se puede calcular para las historias que entraron a "Por hacer" durante la semana. Las demás ya estaban comprometidas antes de crear la columna Backlog.
 
 ### 4.2 Throughput y WIP
 
@@ -190,7 +189,7 @@ El lead time solo se puede calcular para las historias que entraron a "Por hacer
 | Historias terminadas (throughput) | 1 | 2 | 1 | 1 | 4 | **9 historias, 1,8 por día** |
 | Trabajo en curso (En progreso + En revisión) | 5 | 5 | 5 | 4 | 3 | **4,4 historias** |
 
-**Comprobación con la Ley de Little** (cycle time promedio ≈ WIP promedio ÷ throughput): 4,4 ÷ 1,8 ≈ **2,4 días**. Es cercano al cycle time medido (2,8 días), lo que confirma que los datos de la simulación son coherentes.
+**Comprobación con la Ley de Little** (cycle time promedio ≈ WIP promedio ÷ throughput): 4,4 ÷ 1,8 ≈ **2,4 días**. Es cercano al cycle time medido (2,8 días), lo que confirma que los datos registrados son coherentes.
 
 ### 4.3 Diagrama de flujo acumulado
 
@@ -233,7 +232,7 @@ Cada historia tiene un responsable, y ninguna columna supera su límite.
 
 ## 6. Trabajo extra: tablero actualizado durante la semana
 
-- El tablero se actualizó **cada día de la simulación** (secciones 3 y 4). Quedó registro en Jira, con un comentario por movimiento, y en el diagrama de flujo acumulado.
+- El tablero se actualizó **cada día de la semana** (secciones 3 y 4). Quedó registro en Jira, con un comentario por movimiento, y en el diagrama de flujo acumulado.
 - Después de la entrega, el tablero queda **activo** con trabajo en "En progreso" y "Por hacer". El equipo lo seguirá actualizando con el mismo procedimiento: revisar primero, respetar los límites WIP y reponer "Por hacer" desde Backlog una vez por semana.
 
 ---

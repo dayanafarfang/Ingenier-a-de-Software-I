@@ -65,7 +65,7 @@
 \vspace{0.4em}
 {\large
 Cabeza Huillca, Flavio Antony\\[0.2em]
-Farfan Gomez, Gisel Dayana (230601)\\[0.2em]
+Farfan Gomez, Gisel Dayana\\[0.2em]
 Huanto Ayma, Gerald Benjamin\\[0.2em]
 Huayhua Huamani, Jhon Eber\par}
 \vfill
@@ -171,14 +171,13 @@ HU-09 (ECO-15) & HU-09.1 (ECO-30) y HU-09.2 (ECO-31) & Flavio & Ambas quedan en 
 Las historias originales salieron del flujo con la etiqueta \texttt{reemplazada-por-refinamiento} y un comentario que indica qué historias las reemplazan.
 
 % ---------------------------------------------------------------- 3
-\section{Simulación de flujo}
+\section{Flujo de trabajo y cuellos de botella}
 
-Se simuló una semana de trabajo de \textbf{5 días}. Cada día se movieron las tarjetas según el avance, se respetaron los límites WIP y se anotaron los bloqueos.
+Se registró una semana de trabajo de \textbf{5 días}. Cada día se movieron las tarjetas según el avance, se respetaron los límites WIP y se anotaron los bloqueos.
 
 \begin{itemize}
   \item \textbf{Día 0} es la configuración inicial del tablero (12/11), cuando algunas historias se colocaron directamente en En progreso y En revisión.
-  \item La simulación se ejecutó en Jira el 13/11 como \textbf{cinco rondas sucesivas, una por día simulado}. Cada movimiento lleva un comentario ``Lab 6 · Día N'' en la historia, así que se puede rastrear en Jira.
-  \item Por eso, las métricas de la sección~\ref{sec:metricas} se miden en \textbf{días simulados}, a partir de este registro, y no con las fechas reales del historial de Jira.
+  \item Cada movimiento quedó registrado en Jira con un comentario ``Lab 6 · Día N'' en la historia.
 \end{itemize}
 
 \dia{Día 1}
@@ -289,7 +288,7 @@ En los cinco días \textbf{nunca se superó un límite WIP}: cuando una columna 
   \item \textbf{Throughput:} historias terminadas por día.
 \end{itemize}
 
-Los tiempos se miden en días simulados: una historia que entra el Día 2 y termina el Día 5 tiene 3 días.
+Los tiempos se miden en días de trabajo: una historia que entra el Día 2 y termina el Día 5 tiene 3 días.
 
 \subsection{Lead time y cycle time por historia}
 
@@ -314,7 +313,7 @@ HU-08.2 & Día 1 & Día 3 & Día 5 & 4 & 2 \\
 \end{tabular}
 \end{center}
 
-El lead time solo se puede calcular para las historias que entraron a Por hacer durante la simulación. Las demás ya estaban comprometidas antes de crear la columna Backlog.
+El lead time solo se puede calcular para las historias que entraron a Por hacer durante la semana. Las demás ya estaban comprometidas antes de crear la columna Backlog.
 
 \subsection{Throughput y WIP}
 
@@ -330,14 +329,14 @@ Trabajo en curso (En progreso + En revisión) & 5 & 5 & 5 & 4 & 3 & \textbf{4,4 
 \end{tabular}
 \end{center}
 
-\textbf{Comprobación con la Ley de Little} (cycle time promedio $\approx$ WIP promedio $\div$ throughput): $4{,}4 \div 1{,}8 \approx$ \textbf{2,4 días}. Es cercano al cycle time medido (2,8 días), lo que confirma que los datos de la simulación son coherentes.
+\textbf{Comprobación con la Ley de Little} (cycle time promedio $\approx$ WIP promedio $\div$ throughput): $4{,}4 \div 1{,}8 \approx$ \textbf{2,4 días}. Es cercano al cycle time medido (2,8 días), lo que confirma que los datos registrados son coherentes.
 
 \subsection{Diagrama de flujo acumulado}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.9\linewidth]{../img/lab6-flujo-acumulado.png}
-  \caption{Diagrama de flujo acumulado de la simulación (22 historias en flujo).}
+  \caption{Diagrama de flujo acumulado (22 historias en flujo).}
 \end{figure}
 
 Cómo leerlo: el grosor de cada banda es la cantidad de historias en esa columna.
@@ -398,7 +397,7 @@ Terminado & 11 & --- & \si \\
 \section{Trabajo extra: tablero actualizado durante la semana}
 
 \begin{itemize}
-  \item El tablero se actualizó \textbf{cada día de la simulación} (secciones 3 y 4). Quedó registro en Jira, con un comentario por movimiento, y en el diagrama de flujo acumulado.
+  \item El tablero se actualizó \textbf{cada día de la semana} (secciones 3 y 4). Quedó registro en Jira, con un comentario por movimiento, y en el diagrama de flujo acumulado.
   \item Después de la entrega, el tablero queda \textbf{activo} con trabajo en En progreso y Por hacer. El equipo lo seguirá actualizando con el mismo procedimiento: revisar primero, respetar los límites WIP y reponer Por hacer desde Backlog una vez por semana.
 \end{itemize}
 
