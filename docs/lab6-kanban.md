@@ -78,9 +78,9 @@ Las historias originales salieron del flujo con la etiqueta `reemplazada-por-ref
 
 ---
 
-## 3. Flujo de trabajo y cuellos de botella
+## 3. Simulación de flujo
 
-Se registró una semana de trabajo de **5 días**. Cada día se movieron las tarjetas según el avance, se respetaron los límites WIP y se anotaron los bloqueos.
+Se simuló una semana de trabajo de **5 días**. Cada día se movieron las tarjetas según el avance, se respetaron los límites WIP y se anotaron los bloqueos.
 
 - **Día 0** es la configuración inicial del tablero (12/11), cuando algunas historias se colocaron directamente en "En progreso" y "En revisión".
 - Cada movimiento quedó registrado en Jira con un comentario "Lab 6 · Día N" en la historia.
